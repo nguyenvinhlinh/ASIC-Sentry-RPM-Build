@@ -6,13 +6,27 @@ By default, `rpmbuild` directory should be in  `$HOME`. if you want to change it
 
 
 ```sh
-$ git clone https://github.com/nguyenvinhlinh/Mining-Rig-Monitor-RPM-Build ~/rpmbuild
+$ git clone https://github.com/nguyenvinhlinh/ASIC-Sentry-RPM-Build ~/rpmbuild
 $ sudo dnf install rpmdevtools
 ```
 
 
 
-## Step 1. Copy source code tarball to `SOURCES`.
+
+## Step 1. Prepare source code tarball
+```
+$ git clone https://github.com/nguyenvinhlinh/ASIC-Sentry/ asic-sentry
+$ cd asic-sentry
+$ git checkout v1.0.0
+$ cd ..
+$ mv asic-sentry asic-sentry-1.0.0
+$ tar -cJvf asic-sentry-1.0.0.tar.xz asic-sentry-1.0.0
+```
+
+Now your source code tarball is ready for next step!
+
+## Step 2. Copy source code tarball to `SOURCES`.
+
 ```sh
 ➜ rpmbuild (master) ✗ tree -L 3
 .
@@ -21,12 +35,13 @@ $ sudo dnf install rpmdevtools
 ├── readme.md
 ├── RPMS
 ├── SOURCES
-│   └── mining-rig-monitor-1.0.0.tar.xz <----- your tarball here!
+│   └── asic-sentry-1.0.0.tar.xz <----- your tarball here!
 ├── SPECS
-│   ├── mining-rig-monitor-1.0.0.spec
+│   ├── asic-sentry-1.0.0.spec
 └── SRPMS
 ```
 ## Step 2. Create new `SPECS/.spec` file
+Ignore this step if you modify existing one!
 
 ```bash
 $ cd SPECS;
@@ -42,31 +57,31 @@ Update:
 ## Step 3. Run `rpmbuild`
 ```bash
 $ cd SPECS;
-$ rpmbuild -bb mining-rig-monitor-1.0.0.spec;
+$ rpmbuild -bb asic-sentry-1.0.0.spec
 ```
 
 Gonna see error:
 ```
-ERROR   0002: file '/opt/mining_rig_monitor/lib/crypto-5.5/priv/lib/crypto.so' contains an invalid runpath '/usr/local/lib64'
+ERROR   0002: file '/opt/asic_sentry/lib/crypto-5.5/priv/lib/crypto.so' contains an invalid runpath '/usr/local/lib64'
 ```
 
 `crypto` is an erlang module. I dont know how to modify it. this is a work around!
 ```
 $ cd SPECS;
 $ export QA_RPATHS=$(( 0x0001|0x0002 ))
-$ rpmbuild -bb mining-rig-monitor-1.0.0.spec;
+$ rpmbuild -bb asic-sentry-1.0.0.spec
 ```
 
 ## Step 4. Provide `%files`
-Those file would be listed after running `rpmbuild -bb mining-rig-monitor-1.0.0.spec`. Append it and re-run `rpmbuild -bb mining-rig-monitor-1.0.0.spec` to make rpm.
+Those file would be listed after running `rpmbuild -bb asic-sentry-1.0.0.spec`. Append it and re-run `rpmbuild -bb asic-sentry-1.0.0.spec` to make rpm.
 ```
 RPM build errors:
     Installed (but unpackaged) file(s) found:
-   /opt/mining_rig_monitor/bin/migrate
-   /opt/mining_rig_monitor/bin/migrate.bat
-   /opt/mining_rig_monitor/bin/mining_rig_monitor
-   /opt/mining_rig_monitor/bin/mining_rig_monitor.bat
-   /opt/mining_rig_monitor/bin/server
+   /opt/asic_sentry/bin/migrate
+   /opt/asic_sentry/bin/migrate.bat
+   /opt/asic_sentry/bin/asic_sentry
+   /opt/asic_sentry/bin/asic_sentry.bat
+   /opt/asic_sentry/bin/server
 
 ```
 
@@ -80,12 +95,12 @@ Check out `RPMS` directory! RPM should be there!
 ├── readme.md
 ├── RPMS
 │   └── x86_64
-│       ├── mining-rig-monitor-1.0.0-1.fc40.x86_64.rpm <----------- your file here!
-│       ├── mining-rig-monitor-debuginfo-1.0.0-1.fc40.x86_64.rpm
-│       └── mining-rig-monitor-debugsource-1.0.0-1.fc40.x86_64.rpm
+│       ├── asic-sentry-1.0.0-1.fc40.x86_64.rpm <----------- your file here!
+│       ├── asic-sentry-debuginfo-1.0.0-1.fc40.x86_64.rpm
+│       └── asic-sentry-debugsource-1.0.0-1.fc40.x86_64.rpm
 ├── SOURCES
-│   └── mining-rig-monitor-1.0.0.tar.xz
+│   └── asic-sentry-1.0.0.tar.xz
 ├── SPECS
-│   ├── mining-rig-monitor-1.0.0.spec
+│   ├── asic-sentry-1.0.0.spec
 └── SRPMS
 ```
